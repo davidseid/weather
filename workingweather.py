@@ -1,59 +1,57 @@
-#!/usr/bin/env python
-# author: David Seidenberg
-# project: What's the weather? 
-# source: Reddit beginner projects
-
-# project description
-'''
-Background
-If you would like to know the basics of what an API is, check out this post by iamapizza. 
-http://www.reddit.com/r/explainlikeimfive/comments/qowts/eli5_what_is_api/c3z9kok
-
-Goal
-Create a program that pulls data from OpenWeatherMap.org that prints out information about 
-the current weather, such as the high, the low, and the amount of rain for wherever you live. 
-Depending on how skilled you are, you can actually do some neat stuff with this project.
-
-Subgoals
-Print out data for the next 5-7 days so you have a 5 day/week long forecast.
-Print the data to another file that you can open up and view at, instead of viewing the 
-information in the command line.
-
-If you know html, write a file that you can print information to so that your project is
-more interesting. Here is an example of the results from what I threw together.
-
-Tips
-APIs that are in Json are essentially lists and dictionaries. Remember that to reference 
-something in a list, you must refer to it by what number element it is in the list, and to 
-reference a key in a dictionary, you must refer to it by it's name.
-Don't like Celsius? Add &units=imperial to the end of the URL of the API to receive your 
-data in Fahrenheit.
-'''
-
 # imports
 import json
 import urllib2
-import time
+import datetime
 
-today_url = "http://api.openweathermap.org/data/2.5/weather?q=PismoBeach&appid=26d344d8f5f13a5e4bc50827812b4503&units=Imperial"
-today_data = json.load(urllib2.urlopen(today_url))
 
-low = today_data['main']['temp_min']
-high = today_data['main']['temp_max']
+# find date using datetime
+today = datetime.datetime.today()
 
-try:
-	rain = today_data['rain']
-except KeyError:
-	pass
-	
+
+# website and request
 forecast_url = "http://api.openweathermap.org/data/2.5/forecast?q=PismoBeach&appid=26d344d8f5f13a5e4bc50827812b4503&units=Imperial"
 forecast_data = json.load(urllib2.urlopen(forecast_url))
 
-days_ahead = 0
-index = 0
 
-while days_ahead < 5:
-	print forecast_data['list'][index]
-	index += 8
-	days_ahead += 1
+# check for the day
+print today.day
+
+# assigns tomorrow, which is the start of our search, if it is a single digit, add a 0
+if today.day > 9:
+	next_day = str(today.day + 1)
+	print next_day
+else:
+	next_day = "0" + str(today.day + 1)
+
+# if the month is less than 10, make sure it is written with a 0 first
+if today.month < 10:
+	month = "0" + str(today.month)
+	print month
+
+# creates a string of the time we will search for
+the_time = "2016-" + month + "-" + next_day + " " + "18:00:00"
+print the_time
+
+# for loop, checking for the next 38 listings (which is all of them for the forecast data)
+for index in range(0,38):
 	
+	# if the listing matches the time we are looking for
+	if forecast_data['list'][index]['dt_txt'] == the_time:
+	
+		# print the time
+		print "Found a time"
+		print forecast_data['list'][index]['dt_txt']
+		
+		# change our time to the next day
+		next_day = int(next_day) + 1
+		next_day = str(next_day)
+		the_time = "2016-09-" + str(next_day) + " " + "18:00:00"
+		print "looking for"
+		print the_time
+		
+		
+		
+		
+
+# program will break at the end of the month, need to check if it is the next month and if so, go back and start form the beginning of the next month
+
