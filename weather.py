@@ -3,7 +3,7 @@
 # project: What's the weather? 
 # source: Reddit beginner projects
 
-# project description
+# description/goals
 '''
 Background
 If you would like to know the basics of what an API is, check out this post by iamapizza. 
@@ -35,66 +35,77 @@ import json
 import urllib2
 import datetime
 
+# intro msg
 intro = "\nThis program will tell you the weather for today and the forecast for the next 5 days."
 print intro
 
+# opens text file to be written to
 f = open('weather.txt', 'w')
 
-
+# url for today at pismo beach using owm api
 today_url = "http://api.openweathermap.org/data/2.5/weather?q=PismoBeach&appid=26d344d8f5f13a5e4bc50827812b4503&units=Imperial"
+
+# loads json data
 today_data = json.load(urllib2.urlopen(today_url))
 
+# todays low and high printing and writing
 low = today_data['main']['temp_min']
 high = today_data['main']['temp_max']
-
 today_msg = "\nToday's low is %s and the high is %s." % (low, high)
-
 print today_msg,
 f.write(today_msg)
 
+
+# checks for rain and displays
 try:
 	rain = today_data['rain']
 	rain_msg = "\nThe rain forecast is: %s\n" % (rain)
-
 except KeyError:
 	rain_msg = "No rain!\n"
-
 print rain_msg
 f.write(rain_msg)
 
 
-# find date using datetime
+# find today's date
 today = datetime.datetime.today()
 
 
-# assigns tomorrow, which is the start of our search, if it is a single digit, add a 0
+
+# start forecast at tomorrow (adjust for digits)
 if today.day > 9:
 	next_day = str(today.day + 1)
 else:
 	next_day = "0" + str(today.day + 1)
+	
 
-# if the month is less than 10, make sure it is written with a 0 first
+
+# if the month is less than 10, makes sure it is written with a 0 first
 if today.month < 10:
 	month = "0" + str(today.month)
+	
+
 
 # creates a string of the time we will search for
 the_time = "2016-" + month + "-" + next_day + " " + "18:00:00"
 
 
-# website and request
+
+# url and json load for pismo beach forecast
 forecast_url = "http://api.openweathermap.org/data/2.5/forecast?q=PismoBeach&appid=26d344d8f5f13a5e4bc50827812b4503&units=Imperial"
 forecast_data = json.load(urllib2.urlopen(forecast_url))
 
-# for loop, checking for the next 38 listings (which is all of them for the forecast data)
+
+# loops through the next 38 listings (which is all of the forecast data)
 for index in range(0,38):
 
 # if the listing matches the time we are looking for
 	if forecast_data['list'][index]['dt_txt'] == the_time:
 		
-
+		# prints out and writes everything we need
 		low = forecast_data['list'][index]['main']['temp_min']
 		high = forecast_data['list'][index]['main']['temp_max']
-		weather_msg = "\nAccording to the forecast for %s, the temperature will be approximately %s." % (the_time, high)
+		date = the_time[:-9]
+		weather_msg = "\nAccording to the forecast for %s, the temperature will be approximately %s." % (date, high)
 		print weather_msg
 		f.write(weather_msg)
 	
